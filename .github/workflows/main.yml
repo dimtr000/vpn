@@ -30,10 +30,9 @@ jobs:
 
     - name: Build APK
       run: |
-        # Используем Flet для сборки. 
-        # Флаг --yes отвечает "да" на все вопросы установщика.
-        # Мы указываем main.py напрямую, чтобы он точно знал, что собирать.
-        flet build apk main.py --yes
+        # Собираем всё содержимое текущей папки как проект Flet
+        # Флаг --yes автоматически подтверждает лицензии и установку SDK
+        flet build apk . --yes
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
