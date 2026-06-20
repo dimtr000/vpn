@@ -28,22 +28,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet
 
-    - name: Prepare Project Structure
-      run: |
-        # Создаем папку проекта и переносим туда main.py
-        mkdir -p my_app
-        mv main.py my_app/
-        cd my_app
-        # Инициализируем проект, чтобы Flet понял структуру
-        flet create .
-
     - name: Build APK
       run: |
-        cd my_app
-        flet build apk
+        # Используем Flet для сборки. 
+        # Флаг --yes отвечает "да" на все вопросы установщика.
+        # Мы указываем main.py напрямую, чтобы он точно знал, что собирать.
+        flet build apk main.py --yes
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: vpn-app
-        path: my_app/build/apk/*.apk
+        path: build/apk/*.apk
