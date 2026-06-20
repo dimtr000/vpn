@@ -1,52 +1,47 @@
-package com.myvpn.app
+import flet as ft
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+def main(page: ft.Page):
+    # Настройки страницы
+    page.title = "VPN Client"
+    page.theme_mode = ft.ThemeMode.DARK
+    page.bgcolor = "#0B0E14"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme(colorScheme = darkColorScheme()) {
-                VPNMainScreen()
-            }
-        }
-    }
-}
+    # Логика кнопки
+    def on_connect_click(e):
+        if btn.text == "ПОДКЛЮЧИТЬ":
+            btn.text = "ОТКЛЮЧИТЬ"
+            btn.style.bgcolor = ft.colors.RED
+            status.value = "Статус: Подключено"
+            status.color = ft.colors.GREEN
+        else:
+            btn.text = "ПОДКЛЮЧИТЬ"
+            btn.style.bgcolor = ft.colors.BLUE
+            status.value = "Статус: Отключено"
+            status.color = ft.colors.RED
+        page.update()
 
-@Composable
-fun VPNMainScreen() {
-    var isConnected by remember { mutableStateOf(false) }
+    status = ft.Text("Статус: Отключено", size=20, color=ft.colors.RED)
+    
+    btn = ft.ElevatedButton(
+        text="ПОДКЛЮЧИТЬ",
+        on_click=on_connect_click,
+        style=ft.ButtonStyle(
+            bgcolor=ft.colors.BLUE,
+            color=ft.colors.WHITE,
+            shape=ft.RoundedRectangleBorder(radius=20)
+        ),
+        width=200,
+        height=60
+    )
 
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF0B0E14)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(if (isConnected) "ЗАЩИЩЕНО" else "ОТКЛЮЧЕНО", color = Color.White)
-        
-        Spacer(modifier = Modifier.height(50.dp))
-        
-        // Кнопка подключения
-        Button(
-            onClick = { isConnected = !isConnected },
-            modifier = Modifier.size(150.dp),
-            shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isConnected) Color(0xFF00C853) else Color(0xFFD50000)
-            )
-        ) {
-            Text("CONNECT")
-        }
-    }
-}
+    page.add(
+        ft.Icon(ft.icons.VPN_KEY, size=100, color=ft.colors.BLUE_200),
+        ft.Container(height=20),
+        status,
+        ft.Container(height=20),
+        btn
+    )
+
+ft.app(target=main)
