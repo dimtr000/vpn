@@ -1,41 +1,22 @@
-name: Build Flet APK
+name: Build APK
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - uses: actions/checkout@v3
+    
+    - name: Build with Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
       with:
-        python-version: '3.11'
-
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
+        buildozer_version: stable
+      
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
       with:
-        channel: 'stable'
-
-    - name: Install Flet
-      run: |
-        python -m pip install --upgrade pip
-        pip install flet
-
-    - name: Build APK
-      run: |
-        # Собираем всё содержимое текущей папки как проект Flet
-        # Флаг --yes автоматически подтверждает лицензии и установку SDK
-        flet build apk . --yes
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: vpn-app
-        path: build/apk/*.apk
+        name: package
+        path: bin/*.apk
