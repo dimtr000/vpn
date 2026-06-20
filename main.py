@@ -1,47 +1,57 @@
-import flet as ft
+from kivymd.app import MDApp
+from kivy.lang import Builder
+from kivy.animation import Animation
+from plyer import vibrator
+from jnius import autoclass
 
-def main(page: ft.Page):
-    # Настройки страницы
-    page.title = "VPN Client"
-    page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = "#0B0E14"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+# Определение UI
+KV = '''
+MDScreen:
+    md_bg_color: "#090A0F"
+    BoxLayout:
+        orientation: 'vertical'
+        MDIconButton:
+            id: connect_btn
+            icon: "power"
+            icon_size: "64sp"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            theme_icon_color: "Custom"
+            icon_color: "#10B981"
+            on_release: app.toggle_vpn()
+'''
 
-    # Логика кнопки
-    def on_connect_click(e):
-        if btn.text == "ПОДКЛЮЧИТЬ":
-            btn.text = "ОТКЛЮЧИТЬ"
-            btn.style.bgcolor = ft.colors.RED
-            status.value = "Статус: Подключено"
-            status.color = ft.colors.GREEN
+class VPNApp(MDApp):
+    is_connected = False
+
+    def build(self):
+        return Builder.load_string(KV)
+
+    def toggle_vpn(self):
+        # 1. Вибрация
+        vibrator.vibrate(0.1)
+        
+        # 2. Анимация
+        btn = self.root.ids.connect_btn
+        anim = Animation(size=(120, 120), d=0.1) + Animation(size=(100, 100), d=0.1)
+        anim.start(btn)
+        
+        # 3. Логика VPN (заглушка для системного вызова)
+        if not self.is_connected:
+            self.start_vpn_service()
         else:
-            btn.text = "ПОДКЛЮЧИТЬ"
-            btn.style.bgcolor = ft.colors.BLUE
-            status.value = "Статус: Отключено"
-            status.color = ft.colors.RED
-        page.update()
+            self.stop_vpn_service()
 
-    status = ft.Text("Статус: Отключено", size=20, color=ft.colors.RED)
-    
-    btn = ft.ElevatedButton(
-        text="ПОДКЛЮЧИТЬ",
-        on_click=on_connect_click,
-        style=ft.ButtonStyle(
-            bgcolor=ft.colors.BLUE,
-            color=ft.colors.WHITE,
-            shape=ft.RoundedRectangleBorder(radius=20)
-        ),
-        width=200,
-        height=60
-    )
+    def start_vpn_service(self):
+        # Здесь происходит обращение к Android VpnService
+        # PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        # intent = Intent(PythonActivity.mActivity, MyVpnService.class)
+        # PythonActivity.mActivity.startService(intent)
+        print("VPN: Запрос авторизации системного туннеля")
+        self.is_connected = True
 
-    page.add(
-        ft.Icon(ft.icons.VPN_KEY, size=100, color=ft.colors.BLUE_200),
-        ft.Container(height=20),
-        status,
-        ft.Container(height=20),
-        btn
-    )
+    def stop_vpn_service(self):
+        print("VPN: Отключение")
+        self.is_connected = False
 
-ft.app(target=main)
+if __name__ == '__main__':
+    VPNApp().run()
